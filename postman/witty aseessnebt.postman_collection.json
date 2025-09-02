@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "2922bbf9-94ae-480e-9eb0-6ddfe2ad4549",
+		"name": "witty aseessnebt",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9089357"
+	},
+	"item": [
+		{
+			"name": "update invoice",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"invoiceId\": \"INV-1001\",\n  \"date\": \"2025-09-02\",\n  \"client\": {\n    \"id\": \"C001\",\n    \"name\": \"John Doe\"\n  },\n  \"items\": [\n    {\n      \"itemId\": \"S001\",\n      \"itemName\": \"Support Item A\",\n      \"quantity\": 2,\n      \"unitPrice\": 100\n    },\n    {\n      \"itemId\": \"S002\",\n      \"itemName\": \"Support Item B\",\n      \"quantity\": 1,\n      \"unitPrice\": 350\n    }\n  ],\n  \"totalAmount\": 550\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/invoices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"invoices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create invoice",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"invoiceId\": \"INV-1001\",\n  \"date\": \"2025-09-02\",\n  \"client\": {\n    \"id\": \"C001\",\n    \"name\": \"John Doe\"\n  },\n  \"items\": [\n    {\n      \"itemId\": \"S001\",\n      \"itemName\": \"Support Item A\",\n      \"quantity\": 2,\n      \"unitPrice\": 100\n    },\n    {\n      \"itemId\": \"S002\",\n      \"itemName\": \"Support Item B\",\n      \"quantity\": 1,\n      \"unitPrice\": 350\n    }\n  ],\n  \"totalAmount\": 550\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:4000/invoices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"invoices"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getInvoices",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/invoices",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"invoices"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
