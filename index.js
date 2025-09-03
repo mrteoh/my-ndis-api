@@ -82,7 +82,39 @@ router.post("/invoices", async (ctx) => {
     type,
   } = ctx.request.body;
 
+  if (!support_item_name) {
+    ctx.status = 400;
+    ctx.body = { error: "support_item_name is required" };
+    return;
+  }
+
+  // Validate start_date and end_date
+  if (start_date && end_date) {
+    const start = new Date(start_date);
+    const end = new Date(end_date);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+      ctx.status = 400;
+      ctx.body = { error: "Invalid start_date or end_date format" };
+      return;
+    }
+    if (start > end) {
+      ctx.status = 400;
+      ctx.body = { error: "start_date cannot be after end_date" };
+      return;
+    }
+  }
   try {
+    // Case-insensitive uniqueness check on name
+    const existing = await pool.query(
+      "SELECT 1 FROM invoices WHERE LOWER(support_item_name) = LOWER($1) LIMIT 1",
+      [support_item_name]
+    );
+    if (existing.rowCount > 0) {
+      ctx.status = 409;
+      ctx.body = { error: "Invoice with this support_item_name already exists" };
+      return;
+    }
+
     const result = await pool.query(
       `INSERT INTO invoices (
         support_item_number, support_item_name,
@@ -136,14 +168,12 @@ router.post("/invoices", async (ctx) => {
     ctx.body = result.rows[0];
   } catch (err) {
     console.error("❌ Error inserting invoice:", err);
-
-    // Send full error details in response for debugging
     ctx.status = 500;
     ctx.body = {
       error: "Failed to create invoice",
-      details: err.message,        // main error message
-      stack: err.stack,            // useful during development
-      code: err.code || null,      // e.g., Postgres error code
+      details: err.message,
+      stack: err.stack,
+      code: err.code || null,
     };
   }
 });
