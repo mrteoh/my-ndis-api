@@ -1,9 +1,13 @@
+const importExcel = require("./importExcel");
+
 const Koa = require("koa");
 const Router = require("koa-router");
 const bodyParser = require("koa-bodyparser");
-const cors = require("@koa/cors");   // ✅ add this
-const pool = require("./db"); // PostgreSQL connection pool
+const cors = require("@koa/cors");
+const multer = require("@koa/multer"); // ✅ for file upload
+const xlsx = require("xlsx");
 
+const pool = require("./db"); // Your DB
 const app = new Koa();
 const router = new Router();
 
@@ -12,6 +16,9 @@ const router = new Router();
 // =======================
 app.use(cors({ origin: "http://localhost:3000" })); // ✅ allow frontend
 app.use(bodyParser());
+
+// Setup multer (store in memory or uploads/)
+const upload = multer({ dest: "uploads/" });
 
 // =======================
 // Routes
@@ -294,6 +301,31 @@ router.put("/invoices/:id", async (ctx) => {
         };
     }
 });
+
+// Upload XLSX Route
+router.post("/upload-xlsx", upload.single("file"), async (ctx) => {
+  try {
+    if (!ctx.file) {
+      ctx.status = 400;
+      ctx.body = { error: "No file uploaded" };
+      return;
+    }
+
+    // Call importExcel with uploaded file path
+    const result = await importExcel(ctx.file.path);
+
+    ctx.body = {
+      fileName: ctx.file.originalname,
+      totalTransactions: result.total,
+      message: "✅ Invoices inserted successfully"
+    };
+  } catch (err) {
+    console.error("❌ Error processing XLSX:", err);
+    ctx.status = 500;
+    ctx.body = { error: "Failed to process XLSX", details: err.message };
+  }
+});
+
 
 app.use(router.routes()).use(router.allowedMethods());
 

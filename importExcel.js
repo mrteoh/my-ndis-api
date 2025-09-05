@@ -1,16 +1,12 @@
 const XLSX = require("xlsx");
-const pool = require("./db");
 const dayjs = require("dayjs");
+const pool = require("./db");
 
-async function importExcel() {
+async function importExcel(filePath) {
   try {
-    // const workbook = XLSX.readFile("xlsx/NDIS Support Catalogue 2023-24.xlsx");
-    // const workbook = XLSX.readFile("xlsx/NDIS Support Catalogue 2024-25.xlsx");
-    const workbook = XLSX.readFile("xlsx/NDIS Support Catalogue 2025-26.xlsx");
-
+    const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
-
     const rows = XLSX.utils.sheet_to_json(sheet);
 
     console.log(`Found ${rows.length} rows. Importing...`);
@@ -18,7 +14,6 @@ async function importExcel() {
     const client = await pool.connect();
 
     for (let row of rows) {
-      // --- Fix: Always treat dates as strings ---
       const rawStart = row["Start date"] ? String(row["Start date"]).trim() : null;
       const rawEnd = row["End Date"] ? String(row["End Date"]).trim() : null;
 
@@ -60,8 +55,8 @@ async function importExcel() {
           row["Support Category Name (PACE)"] || null,
           row["Unit"] || null,
           row["Quote"] || null,
-          startDate, // ✅ always YYYY-MM-DD
-          endDate,   // ✅ always YYYY-MM-DD
+          startDate,
+          endDate,
           row["ACT"] || null,
           row["NSW"] || null,
           row["NT"] || null,
@@ -84,11 +79,11 @@ async function importExcel() {
 
     client.release();
     console.log("✅ Import completed successfully!");
+    return { total: rows.length };
   } catch (err) {
     console.error("❌ Import failed:", err);
-  } finally {
-    pool.end();
+    throw err;
   }
 }
 
-importExcel();
+module.exports = importExcel;
