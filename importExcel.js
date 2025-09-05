@@ -16,6 +16,7 @@ async function importExcel(filePath) {
     for (let row of rows) {
       const rawStart = row["Start date"] ? String(row["Start date"]).trim() : null;
       const rawEnd = row["End Date"] ? String(row["End Date"]).trim() : null;
+      const rawInvoiceDate = row["Invoice Date"] ? String(row["Invoice Date"]).trim() : null;
 
       const startDate =
         rawStart && dayjs(rawStart, ["YYYYMMDD", "DD/MM/YYYY", "YYYY-MM-DD"], true).isValid()
@@ -25,6 +26,11 @@ async function importExcel(filePath) {
       const endDate =
         rawEnd && dayjs(rawEnd, ["YYYYMMDD", "DD/MM/YYYY", "YYYY-MM-DD"], true).isValid()
           ? dayjs(rawEnd, ["YYYYMMDD", "DD/MM/YYYY", "YYYY-MM-DD"], true).format("YYYY-MM-DD")
+          : null;
+
+      const invoiceDate =
+        rawInvoiceDate && dayjs(rawInvoiceDate, ["YYYYMMDD", "DD/MM/YYYY", "YYYY-MM-DD"], true).isValid()
+          ? dayjs(rawInvoiceDate, ["YYYYMMDD", "DD/MM/YYYY", "YYYY-MM-DD"], true).format("YYYY-MM-DD")
           : null;
 
       await client.query(
@@ -38,11 +44,13 @@ async function importExcel(filePath) {
           remote, very_remote,
           non_face_to_face_support_provision, provider_travel,
           short_notice_cancellations, ndia_requested_reports,
-          irregular_sil_supports, type
+          irregular_sil_supports, type,
+          invoice_date, invoice_amount, invoice_rate, invoice_number, max_rate, created_at
         ) VALUES (
           $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,
           $11,$12,$13,$14,$15,$16,$17,$18,$19,$20,
-          $21,$22,$23,$24,$25,$26,$27,$28
+          $21,$22,$23,$24,$25,$26,$27,$28,
+          $29,$30,$31,$32,$33,NOW()
         )`,
         [
           row["Support Item Number"] || null,
@@ -73,6 +81,12 @@ async function importExcel(filePath) {
           row["NDIA Requested Reports"] || null,
           row["Irregular SIL Supports"] || null,
           row["Type"] || null,
+          invoiceDate,
+          row["Invoice Amount"] || null,
+          row["Invoice Rate"] || null,
+          row["Invoice Number"] || null,
+          row["Max Rate"] || null
+          // created_at uses NOW()
         ]
       );
     }
