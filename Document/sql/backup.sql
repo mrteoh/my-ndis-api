@@ -5,7 +5,7 @@
 -- Dumped from database version 14.19 (Homebrew)
 -- Dumped by pg_dump version 17.5
 
--- Started on 2025-09-02 21:37:20 +08
+-- Started on 2025-09-06 17:23:33 +08
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -34,7 +34,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 210 (class 1259 OID 16452)
+-- TOC entry 210 (class 1259 OID 16506)
 -- Name: invoices; Type: TABLE; Schema: public; Owner: africk
 --
 
@@ -67,14 +67,20 @@ CREATE TABLE public.invoices (
     short_notice_cancellations character varying(5),
     ndia_requested_reports character varying(5),
     irregular_sil_supports character varying(5),
-    type text
+    type text,
+    invoice_date date,
+    invoice_amount numeric(12,2),
+    invoice_rate numeric(12,2),
+    invoice_number character varying(100),
+    max_rate numeric(12,2),
+    created_at timestamp with time zone DEFAULT now()
 );
 
 
 ALTER TABLE public.invoices OWNER TO africk;
 
 --
--- TOC entry 209 (class 1259 OID 16451)
+-- TOC entry 209 (class 1259 OID 16505)
 -- Name: invoices_id_seq; Type: SEQUENCE; Schema: public; Owner: africk
 --
 
@@ -90,7 +96,7 @@ CREATE SEQUENCE public.invoices_id_seq
 ALTER SEQUENCE public.invoices_id_seq OWNER TO africk;
 
 --
--- TOC entry 3783 (class 0 OID 0)
+-- TOC entry 3784 (class 0 OID 0)
 -- Dependencies: 209
 -- Name: invoices_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: africk
 --
@@ -99,7 +105,7 @@ ALTER SEQUENCE public.invoices_id_seq OWNED BY public.invoices.id;
 
 
 --
--- TOC entry 3635 (class 2604 OID 16455)
+-- TOC entry 3635 (class 2604 OID 16509)
 -- Name: invoices id; Type: DEFAULT; Schema: public; Owner: africk
 --
 
@@ -107,7 +113,7 @@ ALTER TABLE ONLY public.invoices ALTER COLUMN id SET DEFAULT nextval('public.inv
 
 
 --
--- TOC entry 3637 (class 2606 OID 16459)
+-- TOC entry 3638 (class 2606 OID 16514)
 -- Name: invoices invoices_pkey; Type: CONSTRAINT; Schema: public; Owner: africk
 --
 
@@ -116,7 +122,7 @@ ALTER TABLE ONLY public.invoices
 
 
 --
--- TOC entry 3782 (class 0 OID 0)
+-- TOC entry 3783 (class 0 OID 0)
 -- Dependencies: 4
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: africk
 --
@@ -125,7 +131,7 @@ REVOKE USAGE ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
--- Completed on 2025-09-02 21:37:20 +08
+-- Completed on 2025-09-06 17:23:33 +08
 
 --
 -- PostgreSQL database dump complete

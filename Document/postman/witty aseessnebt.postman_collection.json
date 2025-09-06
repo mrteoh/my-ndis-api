@@ -86,6 +86,55 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Delete invoice",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:4000/invoices/1878",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"invoices",
+						"1878"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Upload XLSX Route",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:4000/upload-xlsx",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "4000",
+					"path": [
+						"upload-xlsx"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
