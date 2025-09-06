@@ -76,7 +76,6 @@ router.post("/invoices", async (ctx) => {
     invoice_date,
   } = ctx.request.body;
 
-  console.log('Received data:', ctx.request.body);
   if (!support_item_name) {
     ctx.status = 400;
     ctx.body = { error: "support_item_name is required" };
@@ -163,122 +162,78 @@ router.post("/invoices", async (ctx) => {
 });
 
 
-
 router.put("/invoices/:id", async (ctx) => {
-    const { id } = ctx.params;
-    const {
+  const { id } = ctx.params;
+  const {
+    unit,
+    invoice_rate,
+    invoice_number,
+    invoice_amount,
+    support_category_number,
+    support_category_name,
+    start_date,
+    end_date,
+    support_item_number,
+    support_item_name,
+    registration_group_number,
+    registration_group_name,
+    max_rate,
+    type,
+  } = ctx.request.body;
+
+  try {
+    const result = await pool.query(
+      `UPDATE invoices SET
+        unit = $1,
+        invoice_rate = $2,
+        invoice_number = $3,
+        invoice_amount = $4,
+        support_category_number = $5,
+        support_category_name = $6,
+        start_date = $7,
+        end_date = $8,
+        support_item_number = $9,
+        support_item_name = $10,
+        registration_group_number = $11,
+        registration_group_name = $12,
+        max_rate = $13,
+        type = $14
+      WHERE id = $15
+      RETURNING *`,
+      [
+        unit,
+        invoice_rate,
+        invoice_number,
+        invoice_amount,
+        support_category_number,
+        support_category_name,
+        start_date,
+        end_date,
         support_item_number,
         support_item_name,
         registration_group_number,
         registration_group_name,
-        support_category_number,
-        support_category_number_pace,
-        support_category_name,
-        support_category_name_pace,
-        unit,
-        quote,
-        start_date,
-        end_date,
-        act,
-        nsw,
-        nt,
-        qld,
-        sa,
-        tas,
-        vic,
-        wa,
-        remote,
-        very_remote,
-        non_face_to_face_support_provision,
-        provider_travel,
-        short_notice_cancellations,
-        ndia_requested_reports,
-        irregular_sil_supports,
+        max_rate,
         type,
-    } = ctx.request.body;
+        id,
+      ]
+    );
 
-    try {
-        const result = await pool.query(
-            `UPDATE invoices SET
-                support_item_number = $1,
-                support_item_name = $2,
-                registration_group_number = $3,
-                registration_group_name = $4,
-                support_category_number = $5,
-                support_category_number_pace = $6,
-                support_category_name = $7,
-                support_category_name_pace = $8,
-                unit = $9,
-                quote = $10,
-                start_date = $11,
-                end_date = $12,
-                act = $13,
-                nsw = $14,
-                nt = $15,
-                qld = $16,
-                sa = $17,
-                tas = $18,
-                vic = $19,
-                wa = $20,
-                remote = $21,
-                very_remote = $22,
-                non_face_to_face_support_provision = $23,
-                provider_travel = $24,
-                short_notice_cancellations = $25,
-                ndia_requested_reports = $26,
-                irregular_sil_supports = $27,
-                type = $28
-            WHERE id = $29
-            RETURNING *`,
-            [
-                support_item_number,
-                support_item_name,
-                registration_group_number,
-                registration_group_name,
-                support_category_number,
-                support_category_number_pace,
-                support_category_name,
-                support_category_name_pace,
-                unit,
-                quote,
-                start_date,
-                end_date,
-                act,
-                nsw,
-                nt,
-                qld,
-                sa,
-                tas,
-                vic,
-                wa,
-                remote,
-                very_remote,
-                non_face_to_face_support_provision,
-                provider_travel,
-                short_notice_cancellations,
-                ndia_requested_reports,
-                irregular_sil_supports,
-                type,
-                id,
-            ]
-        );
-
-        if (result.rows.length === 0) {
-            ctx.status = 404;
-            ctx.body = { error: "Invoice not found" };
-        } else {
-            ctx.body = result.rows[0];
-        }
-    } catch (err) {
-        console.error("❌ Error updating invoice:", err);
-        ctx.status = 500;
-        ctx.body = {
-            error: "Failed to update invoice",
-            details: err.message,
-            stack: err.stack,
-            code: err.code || null,
-        };
+    if (result.rows.length === 0) {
+      ctx.status = 404;
+      ctx.body = { error: "Invoice not found" };
+    } else {
+      ctx.body = result.rows[0];
     }
+  } catch (err) {
+    console.error("❌ Error updating invoice:", err);
+    ctx.status = 500;
+    ctx.body = {
+      error: "Failed to update invoice",
+      details: err.message,
+      code: err.code || null,
+    };
+  }
 });
 
 // Upload XLSX Route
@@ -379,6 +334,30 @@ router.post("/upload-xlsx", upload.single("file"), async (ctx) => {
     ctx.body = { error: "Failed to process XLSX", details: err.message };
   }
 });
+
+// Delete invoice
+router.delete("/invoices/:id", async (ctx) => {
+  const { id } = ctx.params;
+
+  try {
+    const result = await pool.query("DELETE FROM invoices WHERE id = $1 RETURNING *", [id]);
+
+    if (result.rows.length === 0) {
+      ctx.status = 404;
+      ctx.body = { error: "Invoice not found" };
+    } else {
+      ctx.body = {
+        message: "✅ Invoice deleted successfully",
+        deletedInvoice: result.rows[0],
+      };
+    }
+  } catch (err) {
+    console.error("❌ Error deleting invoice:", err);
+    ctx.status = 500;
+    ctx.body = { error: "Failed to delete invoice", details: err.message };
+  }
+});
+
 
 app.use(router.routes()).use(router.allowedMethods());
 
